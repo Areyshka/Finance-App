@@ -159,3 +159,17 @@ menu.addEventListener('click', openNav);
 });
 
 
+// Функция для отображения даты и времени
+function dateNow() {
+    const options = {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true
+    }
+    let localDate = new Date().toLocaleDateString();
+    let localTime = new Date().toLocaleTimeString([], options);
+    date.innerText = `${localDate}\n${localTime}`;
+}
+
+setInterval(dateNow, 1000);
+dateNow();
