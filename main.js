@@ -173,3 +173,44 @@ function dateNow() {
 
 setInterval(dateNow, 1000);
 dateNow();
+
+
+// Функция получения значения из localStorage
+function getLocalStorage(key, defaultValue = 0) {
+    return parseFloat(localStorage.getItem(key)) || defaultValue;
+}
+
+// Функция сохранения значения в localStorage
+function setLocalStorage(key, value) {
+    localStorage.setItem(key, value.toFixed(2));
+}
+
+// Функция для обновления денег
+function updateMoney() {
+    const moneyCard = getLocalStorage('card');
+    const moneyCash = getLocalStorage('cash');
+    card.textContent = moneyCard.toFixed(2);
+    cash.textContent = moneyCash.toFixed(2);
+}
+updateMoney();
+
+// Функция обработки доходов
+function getIncome() {
+    const incomeCount = parseFloat(incomeMoney.value);
+    const typeMoney = incomeCard.checked ? "card" : "cash";
+    const currentCount = getLocalStorage(typeMoney);
+    setLocalStorage(typeMoney, incomeCount + currentCount);
+
+    // Запись транзакции
+    recordTransactions('Зачисление', '', incomeCount, typeMoney);
+}
+
+// Обработчик формы доходов
+incomeForm.addEventListener('submit', function(event) {
+    event.preventDefault();
+    getIncome();
+    updateMoney();
+    updateTable();
+    updateTransactions();
+    incomeForm.reset();
+});
