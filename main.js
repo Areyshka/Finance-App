@@ -380,3 +380,95 @@ expensesForm.addEventListener('submit', function(event) {
 
 // Вызов функции для начального отображения данных
 document.addEventListener('DOMContentLoaded', updateTransactions);
+
+
+
+// Ссылка для получения данных о курсах валют
+const API_BASE_URL = 'https://www.nbrb.by/api/exrates/rates/';
+
+// Объект для хранения текущих курсов валют
+let rates = {};
+
+// Функция для получения курса валюты с сервера
+async function fetchRate(currency) {
+    if (currency === 'BYN') return 1;
+    try {
+        // Запрос к API для получения курса валют
+        const response = await fetch(`${API_BASE_URL}${currency}?parammode=2`);
+        // Проверка успешности запроса
+        if (!response.ok) throw new Error('Failed to fetch rate');
+        const data = await response.json();
+        return data.Cur_OfficialRate;
+    } catch (error) {
+        console.error('Error fetching rate for currency', currency, error);
+        return null;
+    }
+}
+
+// Функция для обновления курсов валют.
+async function updateRates() {
+    const currencies = ['USD', 'EUR', 'RUB', 'PLN', 'BYN'];
+    // Массив промисов, которые выполняют функцию fetchRate для каждой валюты
+    const ratePromises = currencies.map(fetchRate);
+    // После ожидания завершения всех запросов создаётся массив курсов всех валют
+    const ratesArray = await Promise.all(ratePromises);
+
+    // Заполнение объекта rates курсами валют, полученными из массива ratesArray
+    currencies.forEach((currency, index) => {
+        rates[currency] = ratesArray[index] || (currency === 'BYN' ? 1 : null);
+    });
+
+    updateInputValues();
+}
+
+// Функция для конвертации валюты.
+function convert(baseInput) {
+    // Определение валюты текущего поля ввода
+    const baseCurrency = baseInput.dataset.currency;
+    // Преобразование значения из текущего поля ввода в число
+    const baseAmount = parseFloat(baseInput.value) || 0;
+
+    // Проход по всем полям ввода для дальнейшей конвертации во все валюты
+    document.querySelectorAll('.input_calc').forEach(otherInput => {
+        const currency = otherInput.dataset.currency;
+        
+        // Проверка отличия валюты от базовой, доступности курсов валют
+        if (currency !== baseCurrency && rates[baseCurrency] && rates[currency]) {
+            // Вычисление значения в другой валюте
+            let convertedValue = baseAmount * rates[baseCurrency] / rates[currency];
+            if (baseCurrency === 'RUB') {
+                if (['USD', 'EUR', 'BYN'].includes(currency)) {
+                    convertedValue /= 100;
+                } else if (currency === 'PLN') {
+                    convertedValue /= 10;
+                }
+            } else if (baseCurrency === 'PLN') {
+                if (['USD', 'EUR', 'BYN'].includes(currency)) {
+                    convertedValue /= 10;
+                } else if (currency === 'RUB') {
+                    convertedValue *= 10;
+                }
+            } else if (['BYN', 'EUR', 'USD'].includes(baseCurrency)) {
+                if (currency === 'RUB') {
+                    convertedValue *= 100;
+                } else if (currency === 'PLN') {
+                    convertedValue *= 10;
+                }
+            }
+            // Установка вычисленных значений в поля ввода
+            otherInput.value = convertedValue.toFixed(4);
+        }
+    });
+}
+
+// Обновляем курсы валют после загрузки страницы.
+document.addEventListener('DOMContentLoaded', () => {
+    updateRates();
+
+    // Обработчик событий для всех полей ввода
+    document.getElementById('converter-container').addEventListener('input', event => {
+        if (event.target.classList.contains('input_calc')) {
+            convert(event.target);
+        }
+    });
+});
