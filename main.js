@@ -42,3 +42,120 @@ const categoryNames = {
     '22': 'Благотворительность',
     '23': 'Другое'
 };
+
+document.addEventListener('DOMContentLoaded', function () {
+
+    // Создание объекта с кнопками
+    const toggleButtons = {
+        home1: document.getElementById("toggle-home1"),
+        home2: document.getElementById("toggle-home2"),
+        stat1: document.getElementById("toggle-stat1"),
+        stat2: document.getElementById("toggle-stat2"),
+        list1: document.getElementById("toggle-list1"),
+        list2: document.getElementById("toggle-list2"),
+        convert1: document.getElementById("toggle-convert1"),
+        convert2: document.getElementById("toggle-convert2"),
+    };
+
+    // Создание объекта с элементами
+    const elements = {
+        money: document.getElementById("money-container"),
+        forms: document.getElementById("forms-container"),
+        income: document.getElementById("income-form"),
+        expenses: document.getElementById("expenses-form"),
+        tableContainer: document.getElementById("table-container"),
+        table: document.getElementById("table"),
+        transaction: this.getElementById("transaction-container"),
+        convert: document.getElementById("converter-container"),
+    };
+
+    // Функция обновления видимости элементов
+    function updateVisibility(activeElement) {
+        // Определение, какие элементы должны быть видимы
+        const visibility = {
+            home: ["money", "forms", "income", "expenses"],
+            stat: ["tableContainer", "table"],
+            list: ["transaction"],
+            convert: ["convert"],
+        };
+
+        // Обновление видимости элементов
+        Object.keys(elements).forEach(element => {
+            const elementType = visibility[activeElement];
+            elements[element].classList.toggle('hidden', !elementType.includes(element));
+        });
+
+        // Обновление класса "active" для кнопок
+        Object.keys(toggleButtons).forEach(toggleButton => {
+            toggleButtons[toggleButton].classList.toggle('active', toggleButton.startsWith(activeElement))
+        });
+    }
+
+    // Видимость по умолчанию
+    updateVisibility("home");
+
+    // Обработчики событий для кнопок
+    toggleButtons.home1.addEventListener('click', () => updateVisibility('home'));
+    toggleButtons.home2.addEventListener('click', () => updateVisibility('home'));
+    toggleButtons.stat1.addEventListener('click', () => updateVisibility('stat'));
+    toggleButtons.stat2.addEventListener('click', () => updateVisibility('stat'));
+    toggleButtons.list1.addEventListener('click', () => updateVisibility('list'));
+    toggleButtons.list2.addEventListener('click', () => updateVisibility('list'));
+    toggleButtons.convert1.addEventListener('click', () => updateVisibility('convert'));
+    toggleButtons.convert2.addEventListener('click', () => updateVisibility('convert'));
+});
+
+
+// Функция для установки темы
+function setTheme(theme) {
+    document.documentElement.classList.toggle('dark', theme === "dark");
+    moon.classList.toggle('hidden', theme === "dark");
+    sun.classList.toggle('hidden', theme !== "dark");
+}
+
+// Инициализация состояния темы при загрузке страницы
+const currentTheme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+setTheme(currentTheme);
+
+// Обработчик клика для переключения темы
+themeToggle.addEventListener('click', function() {
+    const isDarkMode = document.documentElement.classList.contains('dark');
+    setTheme(isDarkMode ? 'light' : 'dark');
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+
+const sidebar = document.querySelector("aside");
+const maxSidebar = document.querySelector(".max")
+const miniSidebar = document.querySelector(".mini")
+const maxToolbar = document.querySelector(".max-toolbar")
+const menu = document.getElementById("menu")
+
+// Функция для переключения бокового меню
+function openNav() {
+    // Активен ли сейчас мини сайдбар
+    const isMiniSidebarVisible = sidebar.classList.contains('-translate-x-48');
+
+    // Переключаем классы для бокового меню
+    sidebar.classList.toggle('-translate-x-48', !isMiniSidebarVisible);
+    sidebar.classList.toggle('translate-x-none', isMiniSidebarVisible);
+
+    // Переключаем видимость элементов макси сайдбра
+    maxSidebar.classList.toggle('hidden', !isMiniSidebarVisible);
+    maxSidebar.classList.toggle('flex', isMiniSidebarVisible);
+
+    // Переключаем видимость элементов мини сайдбара
+    miniSidebar.classList.toggle('flex', !isMiniSidebarVisible);
+    miniSidebar.classList.toggle('hidden', isMiniSidebarVisible);
+
+    // Переключаем классы для тулбара
+    maxToolbar.classList.toggle('translate-x-24', !isMiniSidebarVisible);
+    maxToolbar.classList.toggle('scale-x-0', !isMiniSidebarVisible);
+    maxToolbar.classList.toggle('translate-x-0', isMiniSidebarVisible);
+}
+
+// Привязка обработчика клика
+menu.addEventListener('click', openNav);
+});
+
+
