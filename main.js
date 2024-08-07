@@ -289,3 +289,94 @@ function updateCategoryExpense(categoryNumber, expensesCount) {
     let selectedValue = getLocalStorage(`value-${categoryNumber}`);
     setLocalStorage(`value-${categoryNumber}`, selectedValue + expensesCount);
 }
+
+
+// Функция записи транзакций
+function recordTransactions(type, categoryName, currentCount, typeMoney) {
+    const transactions = JSON.parse(localStorage.getItem("transactions")) || [];
+    const dateNew = new Date();
+    // Объект транзакции с текущими данными
+    const transaction = {
+        date: dateNew.toLocaleDateString(),
+        time: dateNew.toLocaleTimeString(),
+        type: type,
+        typeMoney: typeMoney,
+        category: categoryName || "",
+        count: currentCount.toFixed(2),
+    };
+    // Добавление новой транзакции в массив
+    transactions.push(transaction);
+    localStorage.setItem("transactions", JSON.stringify(transactions));
+    updateTransactions();
+}
+
+// Функция для обновления таблицы транзакций
+function updateTransactions() {
+    // Очистка текущего содержимого таблицы
+    transactionBody.innerHTML = '';
+    // Массив из транзакций из localStorage
+    const transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+
+    // Перебор всех транзакций и заполнение таблицы данными
+    transactions.forEach(transaction => {
+        const row = document.createElement('tr');
+        
+        // Создание ячеек для каждой строки
+        const dateCell = document.createElement('td');
+        dateCell.textContent = transaction.date;
+
+        const timeCell = document.createElement('td');
+        timeCell.textContent = transaction.time;
+
+        const typeCell = document.createElement('td');
+        typeCell.textContent = transaction.type;
+
+        const methodCell = document.createElement('td');
+        methodCell.textContent = transaction.typeMoney;
+
+        const categoryCell = document.createElement('td');
+        categoryCell.textContent = transaction.category; 
+
+        const amountCell = document.createElement('td');
+        amountCell.textContent = parseFloat(transaction.count).toFixed(2);
+
+        // Добавление ячеек в строку
+        row.appendChild(dateCell);
+        row.appendChild(timeCell);
+        row.appendChild(typeCell);
+        row.appendChild(methodCell);
+        row.appendChild(categoryCell);
+        row.appendChild(amountCell);
+
+        // Добавление строки в таблицу
+        transactionBody.appendChild(row);
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    updateTransactions();
+    updateTable();
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Загрузка сохраненного значения общей суммы расходов
+    const savedTotalExpenses = getLocalStorage('totalExpenses');
+    if (savedTotalExpenses) {
+        document.getElementById("total").innerText = savedTotalExpenses;
+    }
+
+    // Инициализация таблицы
+    updateTable();
+});
+
+expensesForm.addEventListener('submit', function(event) {
+    event.preventDefault();
+    getExpenses();
+    updateMoney();
+    updateTable();
+    updateTransactions();
+    expensesForm.reset();
+});
+
+// Вызов функции для начального отображения данных
+document.addEventListener('DOMContentLoaded', updateTransactions);
