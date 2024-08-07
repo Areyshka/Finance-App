@@ -214,3 +214,78 @@ incomeForm.addEventListener('submit', function(event) {
     updateTransactions();
     incomeForm.reset();
 });
+
+
+// Функция обработки расходов
+function getExpenses() {
+    const expensesCount = parseFloat(expensesMoney.value);
+    const categoryNumber = select.value;
+    const categoryName = categoryNames[categoryNumber];
+    const typeMoney = expensesCard.checked ? "card" : "cash";
+
+    if (categoryNumber) {
+        let currentCount = getLocalStorage(typeMoney);
+        if (currentCount >= expensesCount) {
+        setLocalStorage(typeMoney, currentCount - expensesCount);
+        updateCategoryExpense(categoryNumber, expensesCount);
+        updateTable();
+        // Запись транзакции
+        recordTransactions('Списание', categoryName, expensesCount, typeMoney);
+        updateTransactions();
+    } else {
+        alert ("Недостаточно средств.");
+        }
+    }
+}
+
+// Функция обновления таблицы
+function updateTable() {
+    // Массив всех категорий из выпадающего списка
+    const categories = Array.from(select.options).map(option => option.value);
+    // Общая сумма расходов для каждой категории
+    const totalExpenses = calculateTotalExpenses(categories);
+    document.getElementById("total").innerText = totalExpenses.toFixed(2);
+    setLocalStorage('totalExpenses', totalExpenses)
+    
+
+    // Обновляем все данные по кадой категории
+    categories.forEach(categoryNumber => {
+    // Расходы по конкретной категории
+    const value = getLocalStorage(`value-${categoryNumber}`);
+    // Элементы html для отображения расходов, прогресс-бара, процентов категории
+    const valueElement = document.getElementById(`value-${categoryNumber}`);
+    const progressElement = document.getElementById(`progress-${categoryNumber}`);
+    const percentElement = document.getElementById(`percent-${categoryNumber}`);
+
+        if (valueElement) {
+            valueElement.innerText = value === 0 ? '-' : value.toFixed(2);
+        }
+
+        if (progressElement) {
+            const percentage = totalExpenses === 0 ? 0 : (value / totalExpenses) * 100;
+            progressElement.value = percentage;
+        }
+
+        if (percentElement) {
+            const percentage = totalExpenses === 0 ? 0 : (value / totalExpenses) * 100;
+            percentElement.innerText = `${percentage.toFixed(1)}%`;
+        }
+    });
+
+    updateMoney();
+    expensesForm.reset();
+
+}
+
+// Функция рассчёта общей суммы расходов
+function calculateTotalExpenses(categories) {
+    return categories.reduce((total, category) => {
+        return total + getLocalStorage(`value-${category}`);
+    }, 0);
+}
+
+// Функция обновления расходов по категориям
+function updateCategoryExpense(categoryNumber, expensesCount) {
+    let selectedValue = getLocalStorage(`value-${categoryNumber}`);
+    setLocalStorage(`value-${categoryNumber}`, selectedValue + expensesCount);
+}
