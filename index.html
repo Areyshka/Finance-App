@@ -139,7 +139,7 @@
             <fieldset>
             <legend>Доходы</legend>
             <label for="money">Сумма</label>
-            <input type="number" id="income-money" name="money" required>
+            <input type="number" id="income-money" name="money" step="0.01" min="0" required>
             <div class="radio-container">
                 <div class="money-radio">
                     <input type="radio" id="income-card" name="custom" value="income-card" required>
@@ -159,7 +159,7 @@
                 <fieldset>
                 <legend>Расходы</legend>
                 <label for="expenses-money">Сумма</label>
-                <input type="number" id="expenses-money" name="money" required>
+                <input type="number" id="expenses-money" name="money" step="0.01" min="0" required>
                 <div class="form-group">
                     <label for="select"></label>
                     <select id="select" name="select" required>
