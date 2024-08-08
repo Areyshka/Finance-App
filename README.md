@@ -15,10 +15,6 @@ Personal income and expense tracking app.
 ## API Reference
 
 This application uses the API of the National Bank of the Republic of Belarus to get currency exchange rates
-```http
-API_BASE_URL = 'https://www.nbrb.by/api/exrates/rates/'
-```
-
 
 ## Technologies Used
 
